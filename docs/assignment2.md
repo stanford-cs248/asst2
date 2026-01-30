@@ -1,4 +1,4 @@
-# CS 248A Assignment 2
+# CS 248A Assignment 2 (Due Feb 13, 11:59pm)
 
 ## Environment Setup
 
