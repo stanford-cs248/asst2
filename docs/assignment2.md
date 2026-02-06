@@ -20,7 +20,7 @@ In this assignment you will extend your basic ray caster from Assignment 1 to su
 
 In __Part 1__ of the assignment you will implement texture mapping for triangle meshes as well as volumetric rendering with absorption and emission volumes.
 
-In __Part 2__ of the assignment (which will be released on week 5), you'll learn to recover volume data from a set of 2D images using differentiable rendering techniques.
+In __Part 2__ of the assignment, you'll learn to recover volume data from a set of 2D images using differentiable rendering techniques.
 
 ### Getting started on Part 1
 
