@@ -8,6 +8,7 @@ from pyglm import glm
 import numpy as np
 from reactivex.subject import BehaviorSubject
 from enum import Enum
+import torch
 
 from cs248a_renderer import RendererModules
 from cs248a_renderer.model.scene import Scene
@@ -211,6 +212,10 @@ class Renderer:
             ),
         }
 
+    def get_d_volume(self):
+        """Get the volume density gradient buffer."""
+        return self._volume_d_tex_buf.to_numpy()
+
     def load_bvh(self, triangles: List[Triangle], bvh: BVH) -> None:
         self._triangle_buf = create_triangle_buf(self.primitive_module, triangles)
         self._triangle_count = len(triangles)
@@ -233,7 +238,7 @@ class Renderer:
         self._custom_sdf = custom_sdf
         self._render_custom_sdf = render_custom_sdf
 
-    def render(
+    def _build_render_uniforms(
         self,
         view_mat: glm.mat4,
         fov: float,
@@ -243,8 +248,8 @@ class Renderer:
         visualize_tex_uv: bool = False,
         visualize_level_of_detail: bool = False,
         visualize_albedo: bool = False,
-    ) -> None:
-        """Render the loaded scene."""
+    ) -> Dict:
+        """Build the uniforms dictionary for rendering."""
         focal_length = (0.5 * float(self._render_target.height)) / np.tan(
             np.radians(fov) / 2.0
         )
@@ -307,8 +312,59 @@ class Renderer:
         if self._cube_sdf_buf is not None:
             sdf_uniforms["cubes"] = self._cube_sdf_buf
         uniforms["sdfBuf"] = sdf_uniforms
+        return uniforms
+
+    def render(
+        self,
+        view_mat: glm.mat4,
+        fov: float,
+        render_depth: bool = False,
+        render_normal: bool = False,
+        visualize_barycentric_coords: bool = False,
+        visualize_tex_uv: bool = False,
+        visualize_level_of_detail: bool = False,
+        visualize_albedo: bool = False,
+    ) -> None:
+        """Render the loaded scene."""
+        uniforms = self._build_render_uniforms(
+            view_mat=view_mat,
+            fov=fov,
+            render_depth=render_depth,
+            render_normal=render_normal,
+            visualize_barycentric_coords=visualize_barycentric_coords,
+            visualize_tex_uv=visualize_tex_uv,
+            visualize_level_of_detail=visualize_level_of_detail,
+            visualize_albedo=visualize_albedo,
+        )
         self.renderer_module.render(
             tid=spy.grid(shape=(self._render_target.height, self._render_target.width)),
             uniforms=uniforms,
             _result=self._render_target,
+        )
+
+    def render_volume_backward(
+        self,
+        view_mat: glm.mat4,
+        fov: float,
+        out_grad: torch.Tensor,
+    ) -> None:
+        """Backward pass for volume rendering."""
+        # Build output gradient texture.
+        out_grad_texture = self._device.create_texture(
+            type=spy.TextureType.texture_2d,
+            format=spy.Format.rgba32_float,
+            width=out_grad.shape[1],
+            height=out_grad.shape[0],
+            usage=spy.TextureUsage.unordered_access | spy.TextureUsage.shader_resource,
+        )
+        out_grad_texture.copy_from_numpy(out_grad.cpu().numpy().astype(np.float32))
+        # Build uniforms.
+        uniforms = self._build_render_uniforms(
+            view_mat=view_mat,
+            fov=fov,
+        )
+        self.renderer_module.renderVolumeBwd(
+            tid=spy.grid(shape=(self._render_target.height, self._render_target.width)),
+            uniforms=uniforms,
+            outGrad=out_grad_texture,
         )
