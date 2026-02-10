@@ -68,18 +68,63 @@ The 80 points for correctness are divided as follows:
 * **Part 2 (40 Points)**
     * Neural Texture (5 Points)
         * Positional Encoding (5 Points)
-    * Differentiable Texture (25 Points)
-        * Sample Bilinear Backward (10 Points)
+    * Differentiable Texture (20 Points)
+        * Sample Bilinear Backward (5 Points)
         * Upsampling (10 Points)
             * Forward (5 Points)
             * Backward (5 Points)
         * Optimization (5 Points)
-    * Volume Recovery (10 Points)
-        * Volume Sampling Backward (5 Points)
+    * Volume Recovery (15 Points)
+        * Sample Trilinear Backward (10 Points)
         * Optimization (5 Points)
 
 ### Handin
 
-Assignment handin will be done on Gradescope.
+Assignment handin will be done on Gradescope. Run the following file to create a `submission.zip` file that's to be uploaded on the Gradescope:
+```bash
+./create_submission.sh
+```
+If you get error that says "Permission denied", please give the file permission to execute (this is a one-time command):
+```bash
+chmod +x ./create_submission.sh
+```
+and then run `./create_submission.sh`. If you unzip the `submission.zip`, you should get the following files that contain your implemented code:
+```bash
+submission/
+├── notebooks/
+│   └── assignment2-part2/
+│       ├── neural-texture/
+│       │   └── shaders/
+│       │       └── neural-texture.slang
+│       └── volume-recovery/
+│           ├── shaders/
+│           │   └── upsampler.slang
+│           ├── diff-texture.ipynb
+│           └── volume-recovery.ipynb
+└── src/
+    └── cs248a_renderer/
+        ├── model/
+        │   ├── bvh.py
+        │   ├── material.py
+        │   └── scene_object.py
+        └── slang_shaders/
+            ├── math/
+            │   ├── bounding_box.slang
+            │   └── ray.slang
+            ├── model/
+            │   ├── bvh.slang
+            │   └── camera.slang
+            ├── primitive/
+            │   ├── sdf.slang
+            │   ├── triangle.slang
+            │   └── volume.slang
+            ├── renderer/
+            │   ├── triangle_renderer.slang
+            │   └── volume_renderer.slang
+            ├── texture/
+            │   ├── diff_texture.slang
+            │   └── texture.slang
+            └── renderer.slang
+```
 
 All programming assignments in CS248A will be graded via a 15 minute in-person conversation with a course CA.  The CAs will ask you to render various scenes, and ask you questions about your code.  Your grade will be a function of both your ability to demonstrate correct code and your team's ability to answer CA questions about the code.
