@@ -80,7 +80,9 @@ The 80 points for correctness are divided as follows:
 
 ### Handin
 
-Assignment handin will be done on Gradescope. Run the following file to create a `submission.zip` file that's to be uploaded on the Gradescope:
+Assignment handin will be done on Gradescope. 
+First, place the recovered volumes (.npy files) and their animations (.mp4 files) inside `./resources`.
+Then, run the following file to create a `submission.zip` file that's to be uploaded on the Gradescope:
 ```bash
 ./create_submission.sh
 ```
@@ -101,6 +103,14 @@ submission/
 │           │   └── upsampler.slang
 │           ├── diff-texture.ipynb
 │           └── volume-recovery.ipynb
+├── resources/
+│   └── recovered_volumes/
+│       ├── recovered_volume1.npy
+│       ├── recovered_volume2.npy
+│       ├── recovered_volume3.npy
+│       ├── recovered_volume1_animation.mp4
+│       ├── recovered_volume2_animation.mp4
+│       └── recovered_volume3_animation.mp4
 └── src/
     └── cs248a_renderer/
         ├── model/
